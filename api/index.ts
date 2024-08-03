@@ -61,7 +61,7 @@ app.post('/api/login', async (req: Request, res: Response, next: NextFunction) =
 });
 
 
-app.get('/api/popular', async (req: Request, res: Response, next) => {
+app.get('/popular', async (req: Request, res: Response, next) => {
   try {
     const url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
     const options = {
