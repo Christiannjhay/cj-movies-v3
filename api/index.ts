@@ -8,7 +8,8 @@ import bcrypt from 'bcrypt';
 import passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
 import { User } from '../types/supabase';
-
+import redis from 'redis';
+import connectRedis from 'connect-redis';
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,18 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Initialize Redis client
+const redisClient = redis.createClient({
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
+});
+
+redisClient.on('error', (err: any) => {
+  console.error('Redis error:', err);
+});
+
+// Initialize Redis store for session
+const RedisStore = require('connect-redis')(session)
+
 app.use(cookieParser());
 app.use(cors({
   origin: 'https://cj-movies.vercel.app', 
@@ -27,9 +40,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Initialize express-session
+// Initialize express-session with Redis store
 app.use(
   session({
+    store: new RedisStore({ client: redisClient }) as any, // TypeScript might complain about the type here, so we use 'as any'
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
@@ -44,7 +58,6 @@ app.use(
 // Initialize Passport.js
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 // Define a local strategy
 passport.use(
