@@ -27,8 +27,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
-
 // Initialize express-session
 app.use(
   session({
@@ -39,7 +37,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      sameSite: 'lax', // or 'strict' if you want more security
+      sameSite: 'lax',
     },
   })
 );
@@ -101,7 +99,7 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
-app.get('/set-test-cookie', (req, res) => {
+app.get('/test-cookie', (req, res) => {
   res.cookie('testCookie', 'testValue', {
     secure: true,
     httpOnly: true,
@@ -109,7 +107,6 @@ app.get('/set-test-cookie', (req, res) => {
   });
   res.send('Test cookie set');
 });
-
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
