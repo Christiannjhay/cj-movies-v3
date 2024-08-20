@@ -36,8 +36,8 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      sameSite: 'lax',
     },
   })
 );
@@ -280,8 +280,10 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
 });
 
 app.get('/profile', (req: Request, res: Response) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+
   if (req.isAuthenticated()) {
-    // req.user will be populated with user data if authenticated
     res.json({ message: 'You are logged in', user: req.user });
   } else {
     res.status(401).json({ message: 'Unauthorized' });
