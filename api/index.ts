@@ -59,7 +59,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: true,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,
       domain: process.env.NODE_ENV === 'production' ? '.cj-movies.vercel.app' : 'localhost', 
