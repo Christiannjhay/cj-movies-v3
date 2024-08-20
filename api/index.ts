@@ -22,7 +22,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://cj-movies.vercel.app',
+  origin: 'https://cj-movies.vercel.app', 
   credentials: true,
 }));
 app.use(express.json());
@@ -38,11 +38,11 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      sameSite: 'lax', // or 'strict' if you want more security
     },
   })
 );
-
 // Initialize Passport.js
 app.use(passport.initialize());
 app.use(passport.session());
