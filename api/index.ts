@@ -62,7 +62,7 @@ app.use(
       httpOnly: true,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,
-      domain: 'https://cj-movies.vercel.app'
+      domain: process.env.NODE_ENV === 'production' ? '.cj-movies.vercel.app' : 'localhost', 
     },
   })
 );
