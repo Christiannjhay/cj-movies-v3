@@ -8,8 +8,7 @@ import bcrypt from 'bcrypt';
 import passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
 import { User } from '../types/supabase';
-import redis from 'redis';
-import connectRedis from 'connect-redis';
+import * as Redis from 'redis';
 
 dotenv.config();
 const app = express();
@@ -21,29 +20,40 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Initialize Redis client
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379',
-});
+
+
+const redisClient = Redis.createClient({ url: process.env.REDIS_URL });
 
 redisClient.on('error', (err: any) => {
   console.error('Redis error:', err);
 });
 
-// Initialize Redis store for session
-const RedisStore = require('connect-redis')(session)
+// Connect to Redis server
+async function setupRedis() {
+  try {
+    await redisClient.connect();
+    console.log('Redis client connected');
+  } catch (err) {
+    console.error('Error connecting to Redis:', err);
+  }
+}
+
+// Call setupRedis() before using redisClient
+setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://cj-movies.vercel.app', 
+  origin: 'https://cj-movies.vercel.app',
   credentials: true,
 }));
 app.use(express.json());
 
 // Initialize express-session with Redis store
+const RedisStore = require("connect-redis").default;
+// Initialize express-session with Redis store
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }) as any, // TypeScript might complain about the type here, so we use 'as any'
+    store: new RedisStore({ client: redisClient }),
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
@@ -109,6 +119,23 @@ passport.deserializeUser(async (id: number, done) => {
     done(null, user);
   } catch (err) {
     done(err, null);
+  }
+});
+
+// Test Redis Connection
+app.get('/test-redis', async (req: Request, res: Response) => {
+  try {
+    // Set a test value in Redis
+    await redisClient.set('testKey', 'testValue');
+
+    // Get the test value from Redis
+    const value = await redisClient.get('testKey');
+
+    // Respond with the retrieved value
+    res.status(200).json({ message: 'Redis is working!', value });
+  } catch (err) {
+    console.error('Redis error:', err);
+    res.status(500).json({ error: 'Failed to communicate with Redis' });
   }
 });
 
@@ -255,7 +282,7 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
         const response = await fetch(url, options);
         const movieDetails = await response.json();
 
-        
+
         const processedMovie = {
           id: movieDetails.id,
           title: movieDetails.title,
@@ -263,7 +290,7 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
           poster_path: movieDetails.poster_path,
           release_date: movieDetails.release_date,
           runtime: movieDetails.runtime,
-          vote_average: movieDetails.vote_average.toFixed(1), 
+          vote_average: movieDetails.vote_average.toFixed(1),
           vote_count: movieDetails.vote_count,
           production_countries: movieDetails.production_countries
             ?.slice(0, 3)
