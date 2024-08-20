@@ -62,7 +62,7 @@ app.use(
       httpOnly: false,
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24,
-      domain: process.env.NODE_ENV === 'production' ? '.cj-movies.vercel.app' : 'localhost', 
+      domain: '.vercel.app'
     },
   })
 );
@@ -198,7 +198,7 @@ app.post('/login', (req: Request, res: Response, next: NextFunction) => {
         return next(err);
       }
       console.log('User logged in:', user);
-      console.log('Session:', req.session); // Check session details
+      console.log('Session:', req.session); 
       return res.status(200).json({ message: 'Logged in successfully', user });
     });
   })(req, res, next);
