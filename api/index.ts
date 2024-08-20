@@ -101,6 +101,15 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
+app.get('/set-test-cookie', (req, res) => {
+  res.cookie('testCookie', 'testValue', {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+  });
+  res.send('Test cookie set');
+});
+
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
