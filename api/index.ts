@@ -58,11 +58,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
-      httpOnly: false,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,
-      domain: '.vercel.app'
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      domain: process.env.NODE_ENV === 'production' ? '.cj-movies.vercel.app' : 'localhost',
     },
   })
 );
@@ -198,7 +198,7 @@ app.post('/login', (req: Request, res: Response, next: NextFunction) => {
         return next(err);
       }
       console.log('User logged in:', user);
-      console.log('Session:', req.session); 
+      console.log('Session:', req.session);
       return res.status(200).json({ message: 'Logged in successfully', user });
     });
   })(req, res, next);
@@ -321,8 +321,6 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
 });
 
 app.get('/profile', (req: Request, res: Response) => {
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
 
   if (req.isAuthenticated()) {
     res.json({ message: 'You are logged in', user: req.user });
