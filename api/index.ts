@@ -40,7 +40,7 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://cj-movies.vercel.app',
+  origin: ['https://www.movies.cejs.site', 'localhost'],
   credentials: true,
 }));
 
@@ -53,7 +53,7 @@ app.use(session({
   secret: 'your-secret-key',
   store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: 'auto',
+    secure: true,
     path: '/',
     sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24,
