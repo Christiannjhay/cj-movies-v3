@@ -6,11 +6,11 @@ import session from 'express-session';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-const LocalStrategy = require('passport-local').Strategy;
+import { Strategy as LocalStrategy } from 'passport-local';
 import { User } from '../types/supabase';
 import * as Redis from 'redis';
+import connectRedis from 'connect-redis'; 
 
-const connectRedis = require('connect-redis')(session);
 
 
 
