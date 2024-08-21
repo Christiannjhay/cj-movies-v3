@@ -54,11 +54,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to true if using HTTPS
+    secure: false,
+    path: '/',
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-    domain: '.cj-movies.vercel.app',
+    maxAge: 1000 * 60 * 60 * 24,
+    domain: '.vercel.app',
   },
 }));
 // Initialize Passport.js
