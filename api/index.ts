@@ -40,7 +40,7 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: ['https://www.movies.cejs.site', 'localhost'],
+  origin: 'https://www.movies.cejs.site',
   credentials: true,
 }));
 
@@ -53,9 +53,8 @@ app.use(session({
   secret: 'your-secret-key',
   store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: true,
+    secure: false,
     path: '/',
-    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24,
     domain: '.cejs.site',
   },
