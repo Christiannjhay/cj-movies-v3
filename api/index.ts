@@ -43,7 +43,7 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: '*',
+  origin: ['http://localhost:5173', 'https://cj-movies.vercel.app'], 
   credentials: true,
 }));
 app.use(express.json());
