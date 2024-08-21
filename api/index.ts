@@ -40,10 +40,9 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://www.movies.cejs.site',
+  origin: ['https://www.movies.cejs.site', 'http://localhost:5174'],
   credentials: true,
 }));
-
 
 app.use(express.json());
 
