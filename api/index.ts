@@ -20,8 +20,6 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-
-
 const redisClient = Redis.createClient({ url: process.env.REDIS_URL });
 
 redisClient.on('error', (err: any) => {
@@ -60,7 +58,7 @@ app.use(session({
     httpOnly: true,
     sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    domain: 'cj-movies.vercel.app',
+    domain: '.cj-movies.vercel.app',
   },
 }));
 // Initialize Passport.js
