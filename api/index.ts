@@ -51,15 +51,13 @@ const RedisStore = require("connect-redis").default
 
 app.use(session({
   secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
   store: new RedisStore({ client: redisClient }),
   cookie: {
     secure: 'auto',
     path: '/',
     sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24,
-    domain: 'api-cj-movies.vercel.app',
+    domain: '.cejs.site',
   },
 }));
 // Initialize Passport.js
