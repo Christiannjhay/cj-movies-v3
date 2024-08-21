@@ -41,23 +41,24 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://cj-movies.vercel.app'], 
+  origin: ['http://localhost:5173', 'https://cj-movies.vercel.app'],
   credentials: true,
 }));
 app.use(express.json());
 
 // Initialize express-session with Redis store
 const RedisStore = require("connect-redis").default;
-// Initialize express-session with Redis store
+
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     path: '/',
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 24, 
     domain: 'api-cj-movies.vercel.app',
   },
 }));
