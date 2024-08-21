@@ -60,7 +60,7 @@ app.use(session({
     httpOnly: true,
     sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24,
-    domain: 'cj-movies.vercel.app',
+    domain: 'api-cj-movies.vercel.app',
   },
 }));
 // Initialize Passport.js
