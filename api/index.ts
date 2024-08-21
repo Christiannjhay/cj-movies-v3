@@ -52,7 +52,8 @@ app.use(session({
   secret: 'your-secret-key',
   store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
     path: '/',
     maxAge: 1000 * 60 * 60 * 24,
     domain: '.cejs.site',
