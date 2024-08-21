@@ -201,7 +201,7 @@ app.post('/login', (req: Request, res: Response, next: NextFunction) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
-        domain: '.cj-movies.vercel.app',
+        domain: 'api-cj-movies.vercel.app',
         maxAge: 1000 * 60 * 60 * 24, // 1 day
       });
 
