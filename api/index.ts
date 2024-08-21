@@ -55,10 +55,9 @@ app.use(session({
   saveUninitialized: false,
   store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: false,
+    secure: true,
     path: '/',
-    httpOnly: true,
-    
+    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24,
     domain: 'api-cj-movies.vercel.app',
   },
