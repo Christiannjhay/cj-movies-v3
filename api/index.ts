@@ -55,14 +55,8 @@ app.use(
   session({
     store: new RedisStore({ client: redisClient }),
     secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
     cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      domain: process.env.NODE_ENV === 'production' ? '.cj-movies.vercel.app' : 'localhost',
+      httpOnly: true, secure: true, signed: true, maxAge: (60 * 60 * 24 * 30) * 1000, sameSite: "none"
     },
   })
 );
