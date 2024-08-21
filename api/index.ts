@@ -58,7 +58,7 @@ app.use(session({
     secure: false,
     path: '/',
     httpOnly: true,
-    sameSite: 'none',
+    
     maxAge: 1000 * 60 * 60 * 24,
     domain: 'api-cj-movies.vercel.app',
   },
