@@ -43,7 +43,7 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://cj-movies.vercel.app',
+  origin: '*',
   credentials: true,
 }));
 app.use(express.json());
@@ -51,15 +51,18 @@ app.use(express.json());
 // Initialize express-session with Redis store
 const RedisStore = require("connect-redis").default;
 // Initialize express-session with Redis store
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: 'your-secret-key',
-    cookie: {
-      httpOnly: true, secure: true, signed: true, maxAge: (60 * 60 * 24 * 30) * 1000, sameSite: "none"
-    },
-  })
-);
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true if using HTTPS
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    domain: 'localhost', // Ensure this matches your domain
+  },
+}));
 // Initialize Passport.js
 app.use(passport.initialize());
 app.use(passport.session());
