@@ -9,6 +9,7 @@ import passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
 import { User } from '../types/supabase';
 import * as Redis from 'redis';
+import connectRedis from 'connect-redis'; 
 
 dotenv.config();
 const app = express();
@@ -47,12 +48,13 @@ app.use(cors({
 app.use(express.json());
 
 // Initialize express-session with Redis store
-const RedisStore = require("connect-redis").default;
+const RedisStore = connectRedis(session);
 
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
+  store: new RedisStore({ client: redisClient }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     path: '/',
