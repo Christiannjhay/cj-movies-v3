@@ -54,8 +54,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
+    secure: 'auto',
     path: '/',
     httpOnly: true,
+    sameSite: "none",
     maxAge: 1000 * 60 * 60 * 24,
     domain: 'api-cj-movies.vercel.app',
   },
