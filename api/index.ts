@@ -9,7 +9,10 @@ import passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
 import { User } from '../types/supabase';
 import * as Redis from 'redis';
-import connectRedis from 'connect-redis'; 
+
+const connectRedis = require('connect-redis')(session);
+
+
 
 dotenv.config();
 const app = express();
