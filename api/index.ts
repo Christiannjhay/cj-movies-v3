@@ -195,16 +195,6 @@ app.post('/login', (req: Request, res: Response, next: NextFunction) => {
       console.log('User logged in:', user);
       console.log('Session:', req.session);
 
-      // Manually set cookie header
-      res.cookie('connect.sid', req.sessionID, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
-        domain: 'api-cj-movies.vercel.app',
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
-      });
-
       return res.status(200).json({ message: 'Logged in successfully', user });
     });
   })(req, res, next);
