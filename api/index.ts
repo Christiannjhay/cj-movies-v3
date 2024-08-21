@@ -44,10 +44,6 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Expose-Headers', 'Set-Cookie');
-  next();
-});
 
 app.use(express.json());
 
@@ -59,7 +55,7 @@ app.use(session({
   saveUninitialized: false,
   store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     path: '/',
     httpOnly: true,
     sameSite: 'none',
