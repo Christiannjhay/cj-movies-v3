@@ -9,10 +9,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { User } from '../types/supabase';
 import * as Redis from 'redis';
-import connectRedis from 'connect-redis'; 
-
-
-
+import RedisStore from "connect-redis"
 
 dotenv.config();
 const app = express();
@@ -30,7 +27,6 @@ redisClient.on('error', (err: any) => {
   console.error('Redis error:', err);
 });
 
-// Connect to Redis server
 async function setupRedis() {
   try {
     await redisClient.connect();
@@ -40,7 +36,6 @@ async function setupRedis() {
   }
 }
 
-// Call setupRedis() before using redisClient
 setupRedis();
 
 app.use(cookieParser());
@@ -50,8 +45,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Initialize express-session with Redis store
-const RedisStore = connectRedis(session);
+const RedisStore = require("connect-redis").default
 
 app.use(session({
   secret: 'your-secret-key',
@@ -63,7 +57,7 @@ app.use(session({
     path: '/',
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 1000 * 60 * 60 * 24, 
+    maxAge: 1000 * 60 * 60 * 24,
     domain: 'cj-movies.vercel.app',
   },
 }));
