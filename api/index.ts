@@ -40,9 +40,15 @@ setupRedis();
 
 app.use(cookieParser());
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://cj-movies.vercel.app'],
+  origin: 'https://cj-movies.vercel.app',
   credentials: true,
 }));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Expose-Headers', 'Set-Cookie');
+  next();
+});
+
 app.use(express.json());
 
 const RedisStore = require("connect-redis").default
