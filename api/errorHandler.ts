@@ -1,19 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 
 function logError(err: Error) {
-    console.error(err)
+   
+    console.error(err);
 }
 
-function logErrorMiddleware(err: Error, req: Request, res: Response, next: NextFunction) {
-    logError(err)
-    next(err)
-}
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
+    logError(err);
 
-function returnError(err: Error, req: Request, res: Response, next: NextFunction): void {
-    res.status((err as any).status || 500).send({
-      status: (err as any).status || 'error',
-      message: err.message || 'Internal Server Error'
+    res.status((err as any).status || 500).json({
+        status: (err as any).status || 'error',
+        message: err.message || 'Internal Server Error'
     });
-  }
+}
 
-export { logErrorMiddleware, returnError };
+export { errorHandler };

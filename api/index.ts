@@ -10,10 +10,15 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { User } from '../types/supabase';
 import * as Redis from 'redis';
 import RedisStore from "connect-redis"
+import { errorHandler } from './errorHandler';
+
 
 dotenv.config();
+
 const app = express();
+
 app.use(express.urlencoded({ extended: true }));
+
 const port = process.env.PORT || 3000;
 const apiKey = process.env.VITE_REACT_APP_MOVIE_API_TOKEN;
 
@@ -39,6 +44,7 @@ async function setupRedis() {
 setupRedis();
 
 app.use(cookieParser());
+
 app.use(cors({
   origin: ['https://www.movies.cejs.site', 'http://localhost:5174'],
   credentials: true,
@@ -58,11 +64,13 @@ app.use(session({
     domain: '.cejs.site',
   },
 }));
-// Initialize Passport.js
+
+
 app.use(passport.initialize());
+
 app.use(passport.session());
 
-// Define a local strategy
+
 passport.use(
   new LocalStrategy(
     async (username: string, password: string, done: (error: any, user?: User | false, options?: { message: string }) => void) => {
@@ -115,16 +123,12 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
-// Test Redis Connection
+
 app.get('/test-redis', async (req: Request, res: Response) => {
   try {
-    // Set a test value in Redis
     await redisClient.set('testKey', 'testValue');
-
-    // Get the test value from Redis
     const value = await redisClient.get('testKey');
 
-    // Respond with the retrieved value
     res.status(200).json({ message: 'Redis is working!', value });
   } catch (err) {
     console.error('Redis error:', err);
@@ -140,6 +144,8 @@ app.get('/test-cookie', (req, res) => {
   });
   res.send('Test cookie set');
 });
+
+
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
 
@@ -175,6 +181,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Failed to register user' });
   }
 });
+
 
 app.post('/login', (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('local', (err: any, user: User | false, info: { message: any }) => {
@@ -213,16 +220,15 @@ app.post('/bookmark', async (req: Request, res: Response) => {
       .eq('movie_id', movieId)
       .single();
 
-    if (fetchError && fetchError.code !== 'PGRST116') { // code 'PGRST116' indicates no record found
+    if (fetchError && fetchError.code !== 'PGRST116') {
       throw fetchError;
     }
 
     if (existingBookmark) {
-      // Bookmark already exists, return a success message without adding a new entry
       return res.status(200).json({ message: 'Movie already bookmarked' });
     }
 
-    // Insert the new bookmark
+   
     const { data, error } = await supabase
       .from('bookmarks')
       .insert([{ user_id: userId, movie_id: movieId }]);
@@ -232,11 +238,56 @@ app.post('/bookmark', async (req: Request, res: Response) => {
     }
 
     res.status(201).json({ message: 'Movie bookmarked successfully', bookmark: data });
-  } catch (err) {
-    console.error('Error bookmarking movie:', err);
+  } catch (error) {
+    console.error('Error bookmarking movie:', error);
     res.status(500).json({ message: 'Failed to bookmark movie' });
   }
 });
+
+app.delete('/remove-bookmark', async (req: Request, res: Response) => {
+  const { movieId } = req.body;
+
+  if (!req.isAuthenticated() || !req.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const userId = (req.user as User).id;
+
+  try {
+    // Check if the bookmark exists
+    const { data: existingBookmark, error: fetchError } = await supabase
+      .from('bookmarks')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('movie_id', movieId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      throw fetchError;
+    }
+
+    if (!existingBookmark) {
+      return res.status(404).json({ message: 'Bookmark not found' });
+    }
+
+    // Remove the bookmark
+    const { error } = await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
+
+    if (error) {
+      throw error;
+    }
+
+    res.status(200).json({ message: 'Bookmark removed successfully' });
+  } catch (error) {
+    console.error('Error removing bookmark:', error);
+    res.status(500).json({ message: 'Failed to remove bookmark' });
+  }
+});
+
 
 app.get('/bookmarked-movies', async (req: Request, res: Response) => {
   if (!req.isAuthenticated() || !req.user) {
@@ -246,7 +297,7 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
   const userId = (req.user as User).id;
 
   try {
-    // Fetch the movie IDs bookmarked by the authenticated user
+  
     const { data: bookmarks, error: fetchError } = await supabase
       .from('bookmarks')
       .select('movie_id')
@@ -260,7 +311,6 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
       return res.status(200).json({ movies: [] });
     }
 
-    // Fetch details for each movie
     const movieDetailsPromises = bookmarks.map(async (bookmark) => {
       const url = `https://api.themoviedb.org/3/movie/${bookmark.movie_id}?language=en-US`;
       const options = {
@@ -274,7 +324,6 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
       try {
         const response = await fetch(url, options);
         const movieDetails = await response.json();
-
 
         const processedMovie = {
           id: movieDetails.id,
@@ -301,8 +350,6 @@ app.get('/bookmarked-movies', async (req: Request, res: Response) => {
     });
 
     const movieDetails = await Promise.all(movieDetailsPromises);
-
-    // Filter out null values if any
     const validMovies = movieDetails.filter((movie) => movie !== null);
 
     res.status(200).json({ movies: validMovies });
@@ -327,38 +374,18 @@ app.post('/logout', (req: Request, res: Response) => {
       return res.status(500).json({ message: 'Error logging out' });
     }
 
-    // Destroy the session
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: 'Error destroying session' });
       }
-
-      // Send a response to indicate logout was successful
       res.status(200).json({ message: 'Logged out successfully' });
     });
   });
 });
 
 
-app.get('/popular', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
-    const options = {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      }
-    };
+app.use(errorHandler);
 
-    const response = await fetch(url, options);
-    const json = await response.json();
-
-    res.status(200).json(json);
-  } catch (error) {
-    next(error);
-  }
-});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
